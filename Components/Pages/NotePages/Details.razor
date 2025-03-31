@@ -1,0 +1,51 @@
+﻿@page "/notes/details"
+@using Microsoft.EntityFrameworkCore
+@using VSHCTwebApp.Components.Models
+@inject IDbContextFactory<VSHCTwebApp.Data.VSHCTwebAppContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Подробнее</PageTitle>
+
+<h1>Подробнее</h1>
+
+<div>
+    <hr />
+    @if (note is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Название</dt>
+            <dd class="col-sm-10">@note.Title</dd>
+            <dt class="col-sm-2">Описание</dt>
+            <dd class="col-sm-10">@note.Description</dd>
+            <dt class="col-sm-2">Кем создано</dt>
+            <dd class="col-sm-10">@note.CreatedBy</dd>
+            <dt class="col-sm-2">Когда создано</dt>
+            <dd class="col-sm-10">@note.CreatedAt</dd>
+        </dl>
+        <div>
+            <a href="@($"/notes/edit?id={note.Id}")">Изменить</a> |
+            <a href="@($"/notes")">Вернуться</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Note? note;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        note = await context.Note.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (note is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

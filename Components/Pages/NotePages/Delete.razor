@@ -1,0 +1,83 @@
+﻿@page "/notes/delete"
+@inject IDbContextFactory<VSHCTwebAppContext> DbFactory
+@using Microsoft.EntityFrameworkCore
+@using VSHCTwebApp.Components.Models
+@using Microsoft.AspNetCore.Identity
+@using VSHCTwebApp.Data
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IDbContextFactory<VSHCTwebApp.Data.VSHCTwebAppContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Вы уверены что хотите удалить Идею?</h1>
+
+<div>
+    <hr />
+    @if (note is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <dl class="row">
+            <dt class="col-sm-2">Название</dt>
+            <dd class="col-sm-10">@note.Title</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Описание</dt>
+            <dd class="col-sm-10">@note.Description</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Кем создано</dt>
+            <dd class="col-sm-10">@note.CreatedBy</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Когда создано</dt>
+            <dd class="col-sm-10">@note.CreatedAt</dd>
+        </dl>
+        <EditForm method="post" Model="note" OnValidSubmit="DeleteNote" FormName="delete" Enhance>
+            <AuthorizeView Policy="AdminOnly">
+                <Authorized Context="authContext">
+                    <button type="submit" class="btn btn-danger" disabled="@(note is null)">Удалить</button>
+                </Authorized>
+                <NotAuthorized Context="authContext">
+                    <div class="alert alert-warning mt-3">
+                        У вас недостаточно прав для удаления.
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+            <a href="/notes">Вернуться</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Note? note;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        note = await context.Note.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (note is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteNote()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Note.Remove(note!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/notes");
+    }
+}

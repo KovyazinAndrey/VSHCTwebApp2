@@ -1,0 +1,38 @@
+﻿@page "/notes"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using VSHCTwebApp.Components.Models
+@using VSHCTwebApp.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<VSHCTwebApp.Data.VSHCTwebAppContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>
+    Список идей:
+    <a href="notes/create" class="btn-idea btn-primary" style="float: right;">Добавить идею</a>
+    
+    </h1>
+
+<p>
+ 
+</p>
+
+<QuickGrid Class="table" Items="context.Note">
+    <TemplateColumn Title="Название" Context="note">
+        <a href="@($"notes/details?id={note.Id}")" class="text-decoration-none">@note.Title</a>
+    </TemplateColumn>
+
+    <PropertyColumn Property="note => note.CreatedBy" Title="Кем создано"/>
+</QuickGrid>
+
+@code {
+    private VSHCTwebAppContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}
