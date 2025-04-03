@@ -18,5 +18,6 @@ namespace VSHCTwebApp.Data
                 .HasForeignKey(uc => uc.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
+        public DbSet<Like> Likes { get; set; }
     }
 }
