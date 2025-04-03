@@ -1,6 +1,10 @@
 ﻿@page "/notes/details"
 @using Microsoft.EntityFrameworkCore
 @using VSHCTwebApp.Components.Models
+@using Microsoft.AspNetCore.Identity;
+@using VSHCTwebApp.Data;
+@inject UserManager<ApplicationUser> UserManager
+@inject IHttpContextAccessor HttpContextAccessor
 @inject IDbContextFactory<VSHCTwebApp.Data.VSHCTwebAppContext> DbFactory
 @inject NavigationManager NavigationManager
 
@@ -26,7 +30,16 @@
             <dd class="col-sm-10">@note.CreatedAt</dd>
         </dl>
         <div>
-            <a href="@($"/notes/edit?id={note.Id}")">Изменить</a>
+            @{
+                var currentUser = HttpContextAccessor.HttpContext.User;
+                var currentUserName = UserManager.GetUserName(currentUser);
+            }
+
+            @if (currentUserName == note.CreatedBy)
+            {
+                <a href="@($"/notes/edit?id={note.Id}")">Изменить</a>
+            }
+
             <EditForm method="post" Model="note" OnValidSubmit="DeleteNote" FormName="delete" Enhance>
                 <AuthorizeView Policy="AdminOnly">
                     <Authorized Context="authContext">

@@ -1,37 +1,86 @@
 ﻿@page "/notes"
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using System.Security.Claims
 @using VSHCTwebApp.Components.Models
 @using VSHCTwebApp.Data
 @implements IAsyncDisposable
 @inject IDbContextFactory<VSHCTwebApp.Data.VSHCTwebAppContext> DbFactory
+@inject VSHCTwebApp.Components.Services.LikeService LikeService
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager NavigationManager
 
 <PageTitle>Index</PageTitle>
 
 <h1>
     Список идей:
     <a href="notes/create" class="btn-idea btn-primary" style="float: right;">Добавить идею</a>
-    
-    </h1>
-
-<p>
- 
-</p>
+</h1>
 
 <QuickGrid Class="table" Items="context.Note">
+    <TemplateColumn Title="Лайки" Context="note">
+        <button @onclick="ToggleLike"
+                class="btn @(IsLikedByUser ? "btn-primary" : "btn-outline-secondary")">
+            <i class="bi @(IsLikedByUser ? "bi-heart-fill" : "bi-heart")"></i>
+            @LikesCount
+        </button>
+    </TemplateColumn>
+
     <TemplateColumn Title="Название" Context="note">
         <a href="@($"notes/details?id={note.Id}")" class="text-decoration-none">@note.Title</a>
     </TemplateColumn>
 
-    <PropertyColumn Property="note => note.CreatedBy" Title="Кем создано"/>
+    <TemplateColumn Title="Кем предложено" Context="note">
+        <a class="text-decoration-none">@note.CreatedBy</a>
+    </TemplateColumn>
 </QuickGrid>
 
 @code {
     private VSHCTwebAppContext context = default!;
 
-    protected override void OnInitialized()
+    [Parameter] public Note Note { get; set; }
+
+    private int LikesCount => Note?.Likes?.Count ?? 0;
+    private bool IsLikedByUser { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
+
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user?.Identity?.IsAuthenticated ?? false)
+        {
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userId) && Note?.Likes != null)
+            {
+                IsLikedByUser = Note.Likes.Any(l => l.UserId == userId);
+            }
+            else
+            {
+                IsLikedByUser = false;
+            }
+        }
+        else
+        {
+            IsLikedByUser = false;
+        }
+
+    }
+
+    private async Task ToggleLike()
+    {
+        try
+        {
+            await LikeService.ToggleLike(Note.Id);
+            IsLikedByUser = !IsLikedByUser;
+            StateHasChanged();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            NavigationManager.NavigateTo("/Account/Login");
+        }
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
