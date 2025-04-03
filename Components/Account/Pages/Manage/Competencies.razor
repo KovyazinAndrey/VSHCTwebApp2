@@ -1,0 +1,494 @@
+@page "/Account/Manage/competencies"
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using VSHCTwebApp.Data
+@using VSHCTwebApp.Components.Models
+@using VSHCTwebApp.Components.Services
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject CompetenciesService CompetenciesService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ILogger<Competencies> Logger
+@rendermode InteractiveServer
+
+<PageTitle>Управление компетенциями</PageTitle>
+
+<h3>Управление компетенциями</h3>
+
+@if (showSaveMessage)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Компетенции успешно сохранены!
+        <button type="button" class="btn-close" @onclick="() => showSaveMessage = false"></button>
+    </div>
+}
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="@competenciesModel" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="mb-4">
+                <h4>Языки программирования</h4>
+                <div class="competencies-grid">
+                    @foreach (var language in AllProgrammingLanguages)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="lang_@language" 
+                                   checked="@competenciesModel.ProgrammingLanguages.Contains(language)"
+                                   @onchange="@(e => OnProgrammingLanguagesChange(language, e.Value))">
+                            <label class="form-check-label" for="lang_@language">
+                                @language
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h4>Фреймворки</h4>
+                <div class="competencies-grid">
+                    @foreach (var framework in AllFrameworks)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="framework_@framework" 
+                                   checked="@competenciesModel.Frameworks.Contains(framework)"
+                                   @onchange="@(e => OnFrameworksChange(framework, e.Value))">
+                            <label class="form-check-label" for="framework_@framework">
+                                @framework
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h4>Базы данных</h4>
+                <div class="competencies-grid">
+                    @foreach (var database in AllDatabases)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="db_@database" 
+                                   checked="@competenciesModel.Databases.Contains(database)"
+                                   @onchange="@(e => OnDatabasesChange(database, e.Value))">
+                            <label class="form-check-label" for="db_@database">
+                                @database
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h4>DevOps технологии</h4>
+                <div class="competencies-grid">
+                    @foreach (var tool in AllDevOps)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="devops_@tool" 
+                                   checked="@competenciesModel.DevOps.Contains(tool)"
+                                   @onchange="@(e => OnDevOpsChange(tool, e.Value))">
+                            <label class="form-check-label" for="devops_@tool">
+                                @tool
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <button type="button" class="btn btn-secondary" @onclick="ResetCompetencies">Сбросить</button>
+            </div>
+        </EditForm>
+    </div>
+
+    <div class="col-md-6">
+        <div class="selected-competencies">
+            <h4>Выбранные компетенции</h4>
+            
+            @if (competenciesModel.ProgrammingLanguages.Any())
+            {
+                <div class="mb-3">
+                    <h5>Языки программирования:</h5>
+                    <div class="selected-items">
+                        @foreach (var lang in competenciesModel.ProgrammingLanguages)
+                        {
+                            <span class="badge bg-primary">@lang</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (competenciesModel.Frameworks.Any())
+            {
+                <div class="mb-3">
+                    <h5>Фреймворки:</h5>
+                    <div class="selected-items">
+                        @foreach (var framework in competenciesModel.Frameworks)
+                        {
+                            <span class="badge bg-success">@framework</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (competenciesModel.Databases.Any())
+            {
+                <div class="mb-3">
+                    <h5>Базы данных:</h5>
+                    <div class="selected-items">
+                        @foreach (var db in competenciesModel.Databases)
+                        {
+                            <span class="badge bg-info">@db</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (competenciesModel.DevOps.Any())
+            {
+                <div class="mb-3">
+                    <h5>DevOps технологии:</h5>
+                    <div class="selected-items">
+                        @foreach (var tool in competenciesModel.DevOps)
+                        {
+                            <span class="badge bg-warning">@tool</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (!competenciesModel.ProgrammingLanguages.Any() && !competenciesModel.Frameworks.Any() && 
+                 !competenciesModel.Databases.Any() && !competenciesModel.DevOps.Any())
+            {
+                <div class="alert alert-info">
+                    Выберите хотя бы одну компетенцию
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .competencies-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+    }
+
+    .form-check {
+        margin: 0.5rem 0;
+    }
+
+    .form-check-input {
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    h4 {
+        color: #333;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .alert {
+        margin-bottom: 1rem;
+    }
+
+    .selected-competencies {
+        background-color: #fff;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .selected-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+    }
+
+    .badge {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    h5 {
+        color: #666;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+</style>
+
+@code {
+    private CompetenciesModel competenciesModel = new();
+    private bool showSaveMessage = false;
+    private string? errorMessage;
+
+    private readonly List<string> AllProgrammingLanguages = new()
+    {
+        "PHP", "Rust", "Java", "Javascript", "HTML", "CSS", "C++", "Python", "C#"
+    };
+
+    private readonly List<string> AllFrameworks = new()
+    {
+        "React", "Unreal Engine GameMode", "Pandas", "1c", "FastAPI", "Node.js", "Keras"
+    };
+
+    private readonly List<string> AllDatabases = new()
+    {
+        "SQLite", "SQL", "Redis", "PostgreSQL", "SQL1"
+    };
+
+    private readonly List<string> AllDevOps = new()
+    {
+        "Docker", "Git"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserCompetencies();
+        await CheckSavedData();
+    }
+
+    private async Task LoadUserCompetencies()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var dbUser = await UserManager.GetUserAsync(user);
+                if (dbUser != null)
+                {
+                    Logger.LogInformation($"Starting load process for user {dbUser.Id}");
+                    
+                    var competencies = await CompetenciesService.GetUserCompetenciesAsync(dbUser);
+
+                    if (competencies != null)
+                    {
+                        Logger.LogInformation($"Found existing competencies with ID: {competencies.Id}");
+                        Logger.LogInformation($"Raw ProgrammingLanguages: {competencies.ProgrammingLanguages}");
+                        Logger.LogInformation($"Raw Frameworks: {competencies.Frameworks}");
+                        Logger.LogInformation($"Raw Databases: {competencies.Databases}");
+                        Logger.LogInformation($"Raw DevOps: {competencies.DevOps}");
+
+                        competenciesModel.ProgrammingLanguages = competencies.ProgrammingLanguages?.Split(',').Where(s => !string.IsNullOrEmpty(s)).ToList() ?? new();
+                        competenciesModel.Frameworks = competencies.Frameworks?.Split(',').Where(s => !string.IsNullOrEmpty(s)).ToList() ?? new();
+                        competenciesModel.Databases = competencies.Databases?.Split(',').Where(s => !string.IsNullOrEmpty(s)).ToList() ?? new();
+                        competenciesModel.DevOps = competencies.DevOps?.Split(',').Where(s => !string.IsNullOrEmpty(s)).ToList() ?? new();
+
+                        Logger.LogInformation($"Processed languages: {string.Join(", ", competenciesModel.ProgrammingLanguages)}");
+                        Logger.LogInformation($"Processed frameworks: {string.Join(", ", competenciesModel.Frameworks)}");
+                        Logger.LogInformation($"Processed databases: {string.Join(", ", competenciesModel.Databases)}");
+                        Logger.LogInformation($"Processed DevOps: {string.Join(", ", competenciesModel.DevOps)}");
+                    }
+                    else
+                    {
+                        Logger.LogInformation("No existing competencies found in database");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading competencies");
+            errorMessage = $"Ошибка при загрузке компетенций: {ex.Message}";
+        }
+        StateHasChanged();
+    }
+
+    private void OnProgrammingLanguagesChange(string language, object? isChecked)
+    {
+        if (isChecked is bool isSelected)
+        {
+            if (isSelected && !competenciesModel.ProgrammingLanguages.Contains(language))
+            {
+                competenciesModel.ProgrammingLanguages.Add(language);
+            }
+            else if (!isSelected && competenciesModel.ProgrammingLanguages.Contains(language))
+            {
+                competenciesModel.ProgrammingLanguages.Remove(language);
+            }
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnFrameworksChange(string framework, object? isChecked)
+    {
+        if (isChecked is bool isSelected)
+        {
+            if (isSelected && !competenciesModel.Frameworks.Contains(framework))
+            {
+                competenciesModel.Frameworks.Add(framework);
+            }
+            else if (!isSelected && competenciesModel.Frameworks.Contains(framework))
+            {
+                competenciesModel.Frameworks.Remove(framework);
+            }
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnDatabasesChange(string database, object? isChecked)
+    {
+        if (isChecked is bool isSelected)
+        {
+            if (isSelected && !competenciesModel.Databases.Contains(database))
+            {
+                competenciesModel.Databases.Add(database);
+            }
+            else if (!isSelected && competenciesModel.Databases.Contains(database))
+            {
+                competenciesModel.Databases.Remove(database);
+            }
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnDevOpsChange(string tool, object? isChecked)
+    {
+        if (isChecked is bool isSelected)
+        {
+            if (isSelected && !competenciesModel.DevOps.Contains(tool))
+            {
+                competenciesModel.DevOps.Add(tool);
+            }
+            else if (!isSelected && competenciesModel.DevOps.Contains(tool))
+            {
+                competenciesModel.DevOps.Remove(tool);
+            }
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void ResetCompetencies()
+    {
+        competenciesModel.ProgrammingLanguages.Clear();
+        competenciesModel.Frameworks.Clear();
+        competenciesModel.Databases.Clear();
+        competenciesModel.DevOps.Clear();
+        StateHasChanged();
+    }
+
+    private async Task CheckSavedData()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var dbUser = await UserManager.GetUserAsync(user);
+            if (dbUser != null)
+            {
+                var competencies = await CompetenciesService.GetUserCompetenciesAsync(dbUser);
+
+                if (competencies != null)
+                {
+                    Logger.LogInformation("Saved competencies in database:");
+                    Logger.LogInformation($"ProgrammingLanguages: {competencies.ProgrammingLanguages}");
+                    Logger.LogInformation($"Frameworks: {competencies.Frameworks}");
+                    Logger.LogInformation($"Databases: {competencies.Databases}");
+                    Logger.LogInformation($"DevOps: {competencies.DevOps}");
+                }
+                else
+                {
+                    Logger.LogWarning("No competencies found in database for current user");
+                }
+            }
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            Logger.LogInformation("HandleValidSubmit started");
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            Logger.LogInformation($"User authenticated: {user.Identity?.IsAuthenticated}");
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var dbUser = await UserManager.GetUserAsync(user);
+                Logger.LogInformation($"DbUser found: {dbUser != null}, Id: {dbUser?.Id}");
+                
+                if (dbUser != null)
+                {
+                    // Проверяем, выбрана ли хотя бы одна компетенция
+                    if (!competenciesModel.ProgrammingLanguages.Any() && !competenciesModel.Frameworks.Any() && 
+                        !competenciesModel.Databases.Any() && !competenciesModel.DevOps.Any())
+                    {
+                        errorMessage = "Пожалуйста, выберите хотя бы одну компетенцию";
+                        StateHasChanged();
+                        return;
+                    }
+
+                    Logger.LogInformation($"Starting save process for user {dbUser.Id}");
+                    Logger.LogInformation($"Selected languages: {string.Join(", ", competenciesModel.ProgrammingLanguages)}");
+                    Logger.LogInformation($"Selected frameworks: {string.Join(", ", competenciesModel.Frameworks)}");
+                    Logger.LogInformation($"Selected databases: {string.Join(", ", competenciesModel.Databases)}");
+                    Logger.LogInformation($"Selected DevOps: {string.Join(", ", competenciesModel.DevOps)}");
+
+                    // Создаем новый объект компетенций
+                    var competencies = new UserCompetencies
+                    {
+                        UserId = dbUser.Id,
+                        ProgrammingLanguages = competenciesModel.ProgrammingLanguages.Any() ? string.Join(",", competenciesModel.ProgrammingLanguages) : "",
+                        Frameworks = competenciesModel.Frameworks.Any() ? string.Join(",", competenciesModel.Frameworks) : "",
+                        Databases = competenciesModel.Databases.Any() ? string.Join(",", competenciesModel.Databases) : "",
+                        DevOps = competenciesModel.DevOps.Any() ? string.Join(",", competenciesModel.DevOps) : ""
+                    };
+
+                    var result = await CompetenciesService.SaveUserCompetenciesAsync(dbUser, competencies);
+                    
+                    if (result)
+                    {
+                        showSaveMessage = true;
+                        errorMessage = null;
+                    }
+                    else
+                    {
+                        errorMessage = "Ошибка при сохранении компетенций";
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error in HandleValidSubmit");
+            errorMessage = $"Ошибка при сохранении компетенций: {ex.Message}";
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+} 
