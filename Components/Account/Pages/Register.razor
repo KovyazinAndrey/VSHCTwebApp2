@@ -67,6 +67,7 @@
 
     public async Task RegisterUser(EditContext editContext)
     {
+
         var user = CreateUser();
 
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
@@ -100,6 +101,7 @@
 
         await SignInManager.SignInAsync(user, isPersistent: false);
         RedirectManager.RedirectTo(ReturnUrl);
+        
     }
 
     private ApplicationUser CreateUser()

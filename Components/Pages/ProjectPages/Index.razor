@@ -11,7 +11,14 @@
 <h1>Биржа проектов</h1>
 
 <p>
-    <a href="projects/create">Create New</a>
+    <AuthorizeView Policy="ClientOrAdmin">
+        <Authorized Context="authContext">
+            <a href="projects/create">Create New</a>
+        </Authorized>
+        <NotAuthorized Context="authContext">
+
+        </NotAuthorized>
+    </AuthorizeView>
 </p>
 
 <QuickGrid Class="table" Items="context.Project">

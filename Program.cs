@@ -50,6 +50,18 @@ namespace VSHCTwebApp
             {
                 options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
             });
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ClientOnly", policy => policy.RequireRole("ClientOnly"));
+            });
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ClientOrAdmin", policy =>
+                    policy.RequireAssertion(context =>
+                        context.User.IsInRole("Client") || context.User.IsInRole("Admin")));
+            });
+
+
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddDbContextFactory<VSHCTwebAppContext>(options =>
