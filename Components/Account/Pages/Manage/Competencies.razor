@@ -1,0 +1,142 @@
+﻿@page "/Account/Manage/competencies"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+@using VSHCTwebApp.Components.Models
+@using VSHCTwebApp.Data
+@attribute [Authorize]
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
+
+<EditForm Model="@editModel" OnValidSubmit="SaveCompetences">
+    <div class="form-group">
+        <label>Языки программирования</label>
+        <InputSelect @bind-Value="editModel.SelectedLanguages" multiple class="form-control">
+            @foreach (var comp in competences[CompetenceCategory.ProgrammingLanguage])
+            {
+                <option value="@comp.Id">@comp.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        <label>Фреймворки</label>
+        <InputSelect @bind-Value="editModel.SelectedFrameworks" multiple class="form-control">
+            @foreach (var comp in competences[CompetenceCategory.Framework])
+            {
+                <option value="@comp.Id">@comp.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        <label>Базы данных</label>
+        <InputSelect @bind-Value="editModel.SelectedDatabases" multiple class="form-control">
+            @foreach (var comp in competences[CompetenceCategory.Database])
+            {
+                <option value="@comp.Id">@comp.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        <label>DevOps технологии</label>
+        <InputSelect @bind-Value="editModel.SelectedDevOps" multiple class="form-control">
+            @foreach (var comp in competences[CompetenceCategory.DevOps])
+            {
+                <option value="@comp.Id">@comp.Name</option>
+            }
+        </InputSelect>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Сохранить</button>
+</EditForm>
+
+@code {
+    private CompetenceEditModel editModel = new();
+    private Dictionary<CompetenceCategory, List<Competence>> competences = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbContextFactory.CreateDbContext();
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        competences = Enum.GetValues(typeof(CompetenceCategory))
+        .Cast<CompetenceCategory>()
+        .ToDictionary(
+            k => k,
+            v => new List<Competence>()
+        );
+
+        var dbCompetences = await context.Competence.ToListAsync();
+        foreach (var group in dbCompetences.GroupBy(c => c.Category))
+        {
+            competences[group.Key] = group.ToList();
+        }
+
+        // Загрузка выбранных компетенций пользователя
+        var userCompetences = await context.UserCompetence
+            .Where(uc => uc.UserId == userId)
+            .Select(uc => uc.CompetenceId)
+            .ToListAsync();
+
+        editModel = new CompetenceEditModel
+            {
+                SelectedLanguages = GetSelectedForCategory(CompetenceCategory.ProgrammingLanguage, userCompetences),
+                SelectedFrameworks = GetSelectedForCategory(CompetenceCategory.Framework, userCompetences),
+                SelectedDatabases = GetSelectedForCategory(CompetenceCategory.Database, userCompetences),
+                SelectedDevOps = GetSelectedForCategory(CompetenceCategory.DevOps, userCompetences)
+            };
+    }
+
+    private List<string> GetSelectedForCategory(CompetenceCategory category, List<int> userCompetences)
+    {
+        return competences[category]
+            .Where(c => userCompetences.Contains(c.Id))
+            .Select(c => c.Id.ToString())
+            .ToList();
+    }
+
+    private async Task SaveCompetences()
+    {
+        using var context = DbContextFactory.CreateDbContext();
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        // Удаляем старые компетенции
+        var currentCompetences = await context.UserCompetence
+            .Where(uc => uc.UserId == userId)
+            .ToListAsync();
+        context.UserCompetence.RemoveRange(currentCompetences);
+
+        // Добавляем новые
+        var selectedIds = editModel.GetAllSelectedIds();
+        foreach (var id in selectedIds)
+        {
+            context.UserCompetence.Add(new UserCompetence
+                {
+                    UserId = userId,
+                    CompetenceId = id
+                });
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    public class CompetenceEditModel
+    {
+        public List<string> SelectedLanguages { get; set; } = new();
+        public List<string> SelectedFrameworks { get; set; } = new();
+        public List<string> SelectedDatabases { get; set; } = new();
+        public List<string> SelectedDevOps { get; set; } = new();
+
+        public List<int> GetAllSelectedIds()
+        {
+            return SelectedLanguages.Select(int.Parse)
+                .Concat(SelectedFrameworks.Select(int.Parse))
+                .Concat(SelectedDatabases.Select(int.Parse))
+                .Concat(SelectedDevOps.Select(int.Parse))
+                .ToList();
+        }
+    }
+}

@@ -32,8 +32,15 @@ namespace VSHCTwebApp
             builder.Services.AddScoped<LikeService> ();
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+
+            builder.Services.AddDbContext<ApplicationDbContext>(
+                options => options.UseSqlServer(connectionString),
+                ServiceLifetime.Scoped);
+
+            builder.Services.AddDbContextFactory<ApplicationDbContext>(
+                options => options.UseSqlServer(connectionString),
+                ServiceLifetime.Scoped);
+
             builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -52,13 +59,6 @@ namespace VSHCTwebApp
             "Connection string 'VSHCTwebAppContext' not found.")));
 
 
-            builder.Services.AddDbContextFactory<VSHCTwebAppContext>(options =>
-                options.UseSqlServer(
-            builder.Configuration.GetConnectionString("VSHCTwebAppContext") ??
-                throw new InvalidOperationException(
-                "Connection string 'VSHCTwebAppContext' not found.")));
-
-
             builder.Services.AddQuickGridEntityFrameworkAdapter();
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -72,7 +72,7 @@ namespace VSHCTwebApp
 
             builder.Services.AddSingleton<NoteService>();
             builder.Services.AddSingleton<CommandService>();
-
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

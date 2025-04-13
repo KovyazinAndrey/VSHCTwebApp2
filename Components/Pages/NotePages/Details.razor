@@ -51,7 +51,7 @@
                 </AuthorizeView>
             </EditForm>
             <EditForm method="post" Model="note" OnValidSubmit="ApproveNote" FormName="approve" Enhance>
-                <AuthorizeView Policy="">
+                <AuthorizeView Policy="AdminOnly">
                     <Authorized Context="authContext">
                         <button type="submit" class="btn btn-danger" disabled="@(note is null)">Подвердить</button>
                     </Authorized>
