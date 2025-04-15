@@ -17,12 +17,11 @@
     <a href="notes/create" class="btn-idea btn-primary" style="float: right;">Добавить идею</a>
 </h1>
 
-<QuickGrid Class="table" Items="context.Note">
+<QuickGrid Class="table" Items="context.Note.Include(n => n.Likes)">
     <TemplateColumn Title="Лайки" Context="note">
-        <button @onclick="ToggleLike"
-                class="btn @(IsLikedByUser ? "btn-primary" : "btn-outline-secondary")">
-            <i class="bi @(IsLikedByUser ? "bi-heart-fill" : "bi-heart")"></i>
-            @LikesCount
+        <button @onclick="@(() => ToggleLike(note))"
+                class="btn btn-link @(IsLikedByUser(note) ? "text-danger" : "text-secondary")">
+            @(note.Likes?.Count ?? 0)
         </button>
     </TemplateColumn>
 
@@ -37,51 +36,48 @@
 
 @code {
     private VSHCTwebAppContext context = default!;
+    private string? currentUserId;
+    private bool? isLiked;
 
-    [Parameter] public Note Note { get; set; }
-
-    private int LikesCount => Note?.Likes?.Count ?? 0;
-    private bool IsLikedByUser { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
-
         var authState = await AuthProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user?.Identity?.IsAuthenticated ?? false)
-        {
-            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!string.IsNullOrEmpty(userId) && Note?.Likes != null)
-            {
-                IsLikedByUser = Note.Likes.Any(l => l.UserId == userId);
-            }
-            else
-            {
-                IsLikedByUser = false;
-            }
-        }
-        else
-        {
-            IsLikedByUser = false;
-        }
-
+        currentUserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        context.Note.Include(n => n.Likes).Load();
     }
 
-    private async Task ToggleLike()
+    private bool IsLikedByUser(Note note)
     {
-        try
-        {
-            await LikeService.ToggleLike(Note.Id);
-            IsLikedByUser = !IsLikedByUser;
-            StateHasChanged();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            NavigationManager.NavigateTo("/Account/Login");
-        }
+        return note.Likes?.Any(l => l.UserId == currentUserId) == true;
     }
 
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+    private async Task ToggleLike(Note note)
+    {
+        if (currentUserId == null)
+        {
+            NavigationManager.NavigateTo("Identity/Account/Login", true);
+            return;
+        }
+        await LikeService.ToggleLikeAsync(note.Id, currentUserId);
+        await UpdateLikeStatus(note);
+    }
+
+    private async Task UpdateLikeStatus(Note note)
+    {
+        // Используем новый контекст для свежих данных
+        await using var freshContext = DbFactory.CreateDbContext();
+        var freshNote = await freshContext.Note
+            .Include(n => n.Likes)
+            .FirstOrDefaultAsync(n => n.Id == note.Id);
+
+        note.Likes = freshNote.Likes;
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (context != null) await context.DisposeAsync();
+    }
 }

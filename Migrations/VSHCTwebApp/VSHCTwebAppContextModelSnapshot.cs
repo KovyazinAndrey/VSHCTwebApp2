@@ -49,26 +49,6 @@ namespace VSHCTwebApp.Migrations.VSHCTwebApp
                     b.ToTable("Command");
                 });
 
-            modelBuilder.Entity("VSHCTwebApp.Components.Models.Competence", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Category")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Competence");
-                });
-
             modelBuilder.Entity("VSHCTwebApp.Components.Models.Like", b =>
                 {
                     b.Property<int>("Id")
@@ -77,7 +57,7 @@ namespace VSHCTwebApp.Migrations.VSHCTwebApp
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("NoteId")
@@ -85,15 +65,13 @@ namespace VSHCTwebApp.Migrations.VSHCTwebApp
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NoteId");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Like");
+                    b.ToTable("Likes");
                 });
 
             modelBuilder.Entity("VSHCTwebApp.Components.Models.Note", b =>
@@ -153,82 +131,6 @@ namespace VSHCTwebApp.Migrations.VSHCTwebApp
                     b.ToTable("Project");
                 });
 
-            modelBuilder.Entity("VSHCTwebApp.Components.Models.UserCompetence", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CompetenceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompetenceId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserCompetence");
-                });
-
-            modelBuilder.Entity("VSHCTwebApp.Data.ApplicationUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ApplicationUser");
-                });
-
             modelBuilder.Entity("VSHCTwebApp.Components.Models.Like", b =>
                 {
                     b.HasOne("VSHCTwebApp.Components.Models.Note", "Note")
@@ -237,49 +139,12 @@ namespace VSHCTwebApp.Migrations.VSHCTwebApp
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("VSHCTwebApp.Data.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Note");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("VSHCTwebApp.Components.Models.UserCompetence", b =>
-                {
-                    b.HasOne("VSHCTwebApp.Components.Models.Competence", "Competence")
-                        .WithMany("UserCompetences")
-                        .HasForeignKey("CompetenceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("VSHCTwebApp.Data.ApplicationUser", "User")
-                        .WithMany("UserCompetences")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Competence");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("VSHCTwebApp.Components.Models.Competence", b =>
-                {
-                    b.Navigation("UserCompetences");
                 });
 
             modelBuilder.Entity("VSHCTwebApp.Components.Models.Note", b =>
                 {
                     b.Navigation("Likes");
-                });
-
-            modelBuilder.Entity("VSHCTwebApp.Data.ApplicationUser", b =>
-                {
-                    b.Navigation("UserCompetences");
                 });
 #pragma warning restore 612, 618
         }

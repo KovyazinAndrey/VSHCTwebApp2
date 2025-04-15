@@ -8,7 +8,6 @@ namespace VSHCTwebApp.Data
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
-        public DbSet<Like> Likes { get; set; }
         public DbSet<Competence> Competence { get; set; }
         public DbSet<UserCompetence> UserCompetence { get; set; }
 

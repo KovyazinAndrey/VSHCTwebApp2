@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VSHCTwebApp.Components.Models
 {
@@ -11,11 +12,8 @@ namespace VSHCTwebApp.Components.Models
 
         [Required(ErrorMessage = "Описание обязательно")]
         public string Description { get; set; } = string.Empty;
-
         public string CreatedBy { get; set; }
-
         public DateTime CreatedAt { get; set; }
-
-        public virtual ICollection<Like> Likes { get; set; } = new List<Like>();
+        public List<Like> Likes { get; set; } = new();
     }
 }

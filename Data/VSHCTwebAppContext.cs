@@ -13,7 +13,7 @@ namespace VSHCTwebApp.Data
             : base(options)
         {
         }
-
+        public DbSet<Like> Likes { get; set; }
         public DbSet<VSHCTwebApp.Components.Models.Note> Note { get; set; } = default!;
         public DbSet<VSHCTwebApp.Components.Models.Command> Command { get; set; } = default!;
         public DbSet<VSHCTwebApp.Components.Models.Project> Project { get; set; } = default!;

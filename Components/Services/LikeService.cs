@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+﻿using Microsoft.EntityFrameworkCore;
 using VSHCTwebApp.Components.Models;
 using VSHCTwebApp.Data;
 
@@ -8,41 +6,45 @@ namespace VSHCTwebApp.Components.Services
 {
     public class LikeService
     {
-        private readonly ApplicationDbContext _context;
-        private readonly AuthenticationStateProvider _authProvider;
+        private readonly IDbContextFactory<VSHCTwebAppContext> _contextFactory;
 
-        public LikeService(ApplicationDbContext context, AuthenticationStateProvider authProvider)
+        public LikeService(IDbContextFactory<VSHCTwebAppContext> contextFactory)
         {
-            _context = context;
-            _authProvider = authProvider;
+            _contextFactory = contextFactory;
         }
 
-        public async Task ToggleLike(int postId)
+        public async Task ToggleLikeAsync(int noteId, string userId)
         {
-            var user = await GetCurrentUser();
-            if (user == null) throw new UnauthorizedAccessException();
-
-            var existingLike = await _context.Likes
-                .FirstOrDefaultAsync(l => l.NoteId == postId && l.UserId == user.Id);
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            var existingLike = await context.Likes
+                .FirstOrDefaultAsync(l => l.NoteId == noteId && l.UserId == userId);
 
             if (existingLike != null)
             {
-                _context.Likes.Remove(existingLike);
+                context.Likes.Remove(existingLike);
             }
             else
             {
-                var newLike = new Like { NoteId = postId, UserId = user.Id };
-                _context.Likes.Add(newLike);
+                context.Likes.Add(new Like { NoteId = noteId, UserId = userId });
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
-        private async Task<ApplicationUser> GetCurrentUser()
+        public async Task<int> GetLikesCountAsync(int noteId)
         {
-            var authState = await _authProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-            return await _context.Users.FirstOrDefaultAsync(u => u.Id == user.FindFirstValue(ClaimTypes.NameIdentifier));
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Likes.CountAsync(l => l.NoteId == noteId);
         }
+
+        public async Task<bool> IsLikedByUserAsync(int noteId, string userId)
+        {
+            if (string.IsNullOrEmpty(userId)) return false;
+
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Likes
+                .AnyAsync(l => l.NoteId == noteId && l.UserId == userId);
+        }
+
     }
 }
