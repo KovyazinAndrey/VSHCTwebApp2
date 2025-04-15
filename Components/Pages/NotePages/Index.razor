@@ -9,6 +9,7 @@
 @inject VSHCTwebApp.Components.Services.LikeService LikeService
 @inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
 <PageTitle>Index</PageTitle>
 
@@ -17,8 +18,17 @@
     <a href="notes/create" class="btn-idea btn-primary" style="float: right;">Добавить идею</a>
 </h1>
 
+<div class="mb-3">
+    <select @bind="selectedSortOption" class="form-select">
+        <option value="dateDesc">По дате (новые сначала)</option>
+        <option value="dateAsc">По дате (старые сначала)</option>
+        <option value="likesDesc">По лайкам (больше сначала)</option>
+        <option value="likesAsc">По лайкам (меньше сначала)</option>
+    </select>
+</div>
+
 <QuickGrid Class="table" Items="context.Note.Include(n => n.Likes)">
-    <TemplateColumn Title="Лайки" Context="note">
+    <TemplateColumn Title="Лайки" Context="note" Sortable="true">
         <button @onclick="@(() => ToggleLike(note))"
                 class="btn btn-link @(IsLikedByUser(note) ? "text-danger" : "text-secondary")">
             @(note.Likes?.Count ?? 0)
@@ -32,13 +42,33 @@
     <TemplateColumn Title="Кем предложено" Context="note">
         <a class="text-decoration-none">@note.CreatedBy</a>
     </TemplateColumn>
+
+    <TemplateColumn Title="Дата создания" Context="note" Sortable="true">
+        <span>@note.CreatedAt.ToString("g")</span>
+        @if (selectedSortOption.Contains("date"))
+        {
+            <i class="bi @(selectedSortOption.Contains("Desc") ? "bi-sort-down" : "bi-sort-up")"></i>
+        }
+    </TemplateColumn>
 </QuickGrid>
 
 @code {
     private VSHCTwebAppContext context = default!;
     private string? currentUserId;
-    private bool? isLiked;
+    private IQueryable<Note>? allNotes;
+    private IQueryable<Note>? sortedNotes;
+    private string selectedSortOption = "dateDesc";
 
+    [Parameter]
+    public string SelectedSortOption
+    {
+        get => selectedSortOption;
+        set
+        {
+            selectedSortOption = value;
+            UpdateSorting();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -46,6 +76,33 @@
         var authState = await AuthProvider.GetAuthenticationStateAsync();
         currentUserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
         context.Note.Include(n => n.Likes).Load();
+
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+
+        allNotes = context.Note
+            .Include(n => n.Likes)
+            .OrderByDescending(n => n.CreatedAt)
+            .AsQueryable();
+
+        UpdateSorting();
+    }
+
+    private void UpdateSorting()
+    {
+        sortedNotes = selectedSortOption switch
+        {
+            "dateAsc" => allNotes.OrderBy(n => n.CreatedAt),
+            "dateDesc" => allNotes.OrderByDescending(n => n.CreatedAt),
+            "likesAsc" => allNotes.OrderBy(n => n.Likes.Count),
+            "likesDesc" => allNotes.OrderByDescending(n => n.Likes.Count),
+            _ => allNotes
+        };
+
+        StateHasChanged();
     }
 
     private bool IsLikedByUser(Note note)
@@ -62,6 +119,8 @@
         }
         await LikeService.ToggleLikeAsync(note.Id, currentUserId);
         await UpdateLikeStatus(note);
+
+        await LoadData();
     }
 
     private async Task UpdateLikeStatus(Note note)
@@ -79,5 +138,10 @@
     public async ValueTask DisposeAsync()
     {
         if (context != null) await context.DisposeAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        UpdateSorting();
     }
 }

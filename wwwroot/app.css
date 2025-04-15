@@ -115,7 +115,7 @@ h1:focus {
 }
 
 .quickgrid.table {
-    background-color: #6d5aa6; /* Замените на точный цвет, если нужно */
+    background-color: #6d5aa6; 
     color: white; /*  Белый текст на фиолетовом фоне обычно хорошо смотрится */
     /* Добавьте другие стили, которые вам нужны, например: */
     padding: 8px; /* Отступы вокруг текста */
@@ -136,3 +136,4 @@ select[multiple] {
         font-weight: 500;
         margin-bottom: 0.5rem;
     }
+
