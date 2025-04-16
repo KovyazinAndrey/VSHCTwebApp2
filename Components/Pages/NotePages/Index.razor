@@ -27,8 +27,8 @@
     </select>
 </div>
 
-<QuickGrid Class="table" Items="context.Note.Include(n => n.Likes)">
-    <TemplateColumn Title="Лайки" Context="note" Sortable="true">
+<QuickGrid Class="table" Items="sortedNotes">
+    <TemplateColumn Title="Лайки" Context="note">
         <button @onclick="@(() => ToggleLike(note))"
                 class="btn btn-link @(IsLikedByUser(note) ? "text-danger" : "text-secondary")">
             @(note.Likes?.Count ?? 0)
@@ -43,7 +43,7 @@
         <a class="text-decoration-none">@note.CreatedBy</a>
     </TemplateColumn>
 
-    <TemplateColumn Title="Дата создания" Context="note" Sortable="true">
+    <TemplateColumn Title="Дата создания" Context="note">
         <span>@note.CreatedAt.ToString("g")</span>
         @if (selectedSortOption.Contains("date"))
         {
@@ -53,11 +53,11 @@
 </QuickGrid>
 
 @code {
-    private VSHCTwebAppContext context = default!;
-    private string? currentUserId;
-    private IQueryable<Note>? allNotes;
-    private IQueryable<Note>? sortedNotes;
+    private List<Note> allNotes = new();
     private string selectedSortOption = "dateDesc";
+    private string? currentUserId;
+    private IQueryable<Note>? sortedNotes;
+
 
     [Parameter]
     public string SelectedSortOption
@@ -72,34 +72,36 @@
 
     protected override async Task OnInitializedAsync()
     {
-        context = DbFactory.CreateDbContext();
+        await using var freshContext = DbFactory.CreateDbContext();
         var authState = await AuthProvider.GetAuthenticationStateAsync();
         currentUserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        context.Note.Include(n => n.Likes).Load();
+        freshContext.Note.Include(n => n.Likes).Load();
 
         await LoadData();
     }
 
     private async Task LoadData()
     {
-
-        allNotes = context.Note
+        await using var context = await DbFactory.CreateDbContextAsync();
+        allNotes = await context.Note
             .Include(n => n.Likes)
-            .OrderByDescending(n => n.CreatedAt)
-            .AsQueryable();
+            .AsNoTracking()
+            .ToListAsync();
 
         UpdateSorting();
     }
 
     private void UpdateSorting()
     {
+        var query = allNotes.AsQueryable();
+
         sortedNotes = selectedSortOption switch
         {
-            "dateAsc" => allNotes.OrderBy(n => n.CreatedAt),
-            "dateDesc" => allNotes.OrderByDescending(n => n.CreatedAt),
-            "likesAsc" => allNotes.OrderBy(n => n.Likes.Count),
-            "likesDesc" => allNotes.OrderByDescending(n => n.Likes.Count),
-            _ => allNotes
+            "dateAsc" => query.OrderBy(n => n.CreatedAt),
+            "dateDesc" => query.OrderByDescending(n => n.CreatedAt),
+            "likesAsc" => query.OrderBy(n => n.Likes.Count),
+            "likesDesc" => query.OrderByDescending(n => n.Likes.Count),
+            _ => query
         };
 
         StateHasChanged();
@@ -112,14 +114,20 @@
 
     private async Task ToggleLike(Note note)
     {
-        if (currentUserId == null)
-        {
-            NavigationManager.NavigateTo("Identity/Account/Login", true);
-            return;
-        }
-        await LikeService.ToggleLikeAsync(note.Id, currentUserId);
-        await UpdateLikeStatus(note);
+        await using var context = await DbFactory.CreateDbContextAsync();
+        var existingLike = await context.Likes
+            .FirstOrDefaultAsync(l => l.NoteId == note.Id && l.UserId == currentUserId);
 
+        if (existingLike != null)
+        {
+            context.Likes.Remove(existingLike);
+        }
+        else
+        {
+            context.Likes.Add(new Like { NoteId = note.Id, UserId = currentUserId });
+        }
+
+        await context.SaveChangesAsync();
         await LoadData();
     }
 
@@ -137,7 +145,8 @@
 
     public async ValueTask DisposeAsync()
     {
-        if (context != null) await context.DisposeAsync();
+        await using var freshContext = DbFactory.CreateDbContext();
+        if (freshContext != null) await freshContext.DisposeAsync();
     }
 
     protected override void OnParametersSet()
