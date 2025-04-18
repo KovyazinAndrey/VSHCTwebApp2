@@ -1,15 +1,25 @@
 html, body {
     font-family: 'JetBrains Mono', Helvetica, Arial, sans-serif;
+    background-color: #D6E7FA; /* Светло-голубой цвет */
+    height: 100%; /* Занимать всю высоту экрана */
+    margin: 0; /* Убрать отступы по умолчанию */
 }
 
+body {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+
 a, .btn-link {
-    color: #006bb7;
+    color: #150B34;
 }
 
 .btn-primary {
     color: #fff;
-    background-color: #6D5AA6;
-    border-color: #6D5AA6;
+    background-color: #5A85A6;
+    border-color: #5A85A6;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
@@ -51,45 +61,52 @@ h1:focus {
 }
 
 .nav-scrollable {
-    background-color: #6d5aa6 !important; /* Устанавливаем цвет фона */
+    background-color: #5A85A6 !important; /* Устанавливаем цвет фона */
     color: #ffffff; /* Устанавливаем цвет текста */
-
 }
 
 .navbar {
-    background-color: #6d5aa6 !important; /* Устанавливаем цвет фона */
+    background-color: #5A85A6 !important; /* Устанавливаем цвет фона */
     color: #ffffff; /* Устанавливаем цвет текста */
 }
 
 .nav-link {
-    background-color: #3E2E6F !important; /* Устанавливаем цвет фона */
+    background-color: #1B4780 !important; /* Устанавливаем цвет фона */
     color: #ffffff; /* Устанавливаем цвет текста */
 }
 
 .page {
     background-color: #D6E7FA !important; /* Устанавливаем цвет фона */
-    color: #3E2E6F; /* Устанавливаем цвет текста */
+    color: #1B4780; /* Устанавливаем цвет текста */
 }
 
 .top-row {
-    background-color: #D6E7FA !important; /* Устанавливаем цвет фона */
-    color: #3E2E6F; /* Устанавливаем цвет текста */
+    background-color: #5A85A6 !important; /* Устанавливаем цвет фона */
+    color: #1B4780; /* Устанавливаем цвет текста */
 }
 
 .container-fluid {
-    background-color: #D6E7FA !important; /* Устанавливаем цвет фона */
-    color: #3E2E6F; /* Устанавливаем цвет текста */
+    background-color: #5A85A6 !important; /* Устанавливаем цвет фона */
+    color: #ffffff; /* Устанавливаем цвет текста */
 }
 
 
 .navbar-brand {
-    color: #3E2E6F; /* Устанавливаем цвет текста */
+    color: #ffffff; /* Устанавливаем цвет текста */
     margin-left: 35px;
 }
-   
 
-.navbar-dark .navbar-brand{
-    color: #3E2E6F; /* Устанавливаем цвет текста */
+.top-row ps-3 navbar navbar-dark {
+    background-color: #5A85A6 !important;
+}
+
+.sidebar {
+    background-color: #5A85A6 !important;
+}
+
+.navbar-dark .navbar-brand {
+    background-color: #5A85A6 !important;
+    color: #ffffff; /* Устанавливаем цвет текста */
 }
 
 .btn-idea {
@@ -104,7 +121,7 @@ h1:focus {
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
-    background-color: #6d5aa6 !important;
+    background-color: #5A85A6 !important;
     border: 1px solid transparent;
     padding: .375rem .75rem;
     font-size: 2rem;
@@ -115,7 +132,7 @@ h1:focus {
 }
 
 .quickgrid.table {
-    background-color: #6d5aa6; 
+    background-color: #5A85A6;
     color: white; /*  Белый текст на фиолетовом фоне обычно хорошо смотрится */
     /* Добавьте другие стили, которые вам нужны, например: */
     padding: 8px; /* Отступы вокруг текста */
@@ -137,3 +154,216 @@ select[multiple] {
         margin-bottom: 0.5rem;
     }
 
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Занимает всю высоту экрана */
+    background-color: #D6E7FA; /* Светло-голубой фон */
+}
+
+.title-container {
+    background-color: #5A85A6; /* Синий цвет плашки */
+    color: white;
+    padding: 40px;
+    border-radius: 100px; /* Закругленные края */
+    text-align: center;
+    margin-bottom: 20px;
+    animation: fadeIn 1s ease-out;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+    .title-container h1 {
+        font-size: 5em;
+        margin: 0;
+        padding: 0;
+    }
+
+.buttons-container {
+    display: flex;
+    gap: 50px; /* Расстояние между кнопками */
+}
+
+.auth-button {
+    display: inline-block;
+    background-color: #5A85A6;
+    color: white;
+    padding: 15px 30px;
+    text-decoration: none;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 2em;
+    transition: background-color 0.3s ease;
+}
+
+    .auth-button:hover {
+        background-color: #1B4780; /* Более темный оттенок при наведении */
+        color: white;
+        text-decoration: none;
+    }
+
+.login-row {
+    width: 100%; /* Установите желаемую ширину (например, 80% от ширины экрана) */
+    max-width: 600px; /* Ограничьте максимальную ширину, чтобы не было слишком широко на больших экранах */
+    text-align: center; /* Центрируем текст внутри контейнера */
+    display: flex;
+    flex-direction: column;
+}
+.col-md-4 {
+    width: 100%; /* Установите желаемую ширину (например, 80% от ширины экрана) */
+    max-width: 600px; /* Ограничьте максимальную ширину, чтобы не было слишком широко на больших экранах */
+    text-align: center; /* Центрируем текст внутри контейнера */
+    display: flex;
+    flex-direction: column;
+}
+.login-row h1{
+    margin-bottom: 30px
+
+}
+
+.col-md-4 h2 {
+    color: #150B34;
+    font-size: 1.5em;
+}
+.vshct-form {
+    position: relative; /* Необходимо для позиционирования label */
+    width: 500px; /* Задайте желаемую ширину */
+    margin: 20px auto; /* Центрируем по горизонтали */
+    border-radius: 1rem;
+}
+
+    .vshct-form .form-control {
+        width: 100%;
+        height: 75px; /* Задайте желаемую высоту */
+        padding: 10px;
+        font-size: 1.5em;
+        border-radius: 2rem;
+        background-color: #5A85A6; /* Цвет фона плашки */
+        color: white; /* Цвет текста */
+        text-align: center; /* Выравниваем текст по центру */
+        transition: all 0.2s ease; /* Добавим плавный переход */
+        display: flex; /* Используем flexbox для вертикального выравнивания */
+        align-items: center;
+    }
+
+        .vshct-form .form-control:focus {
+            outline: none;
+            box-shadow: none;
+            display: flex; /* Используем flexbox для вертикального выравнивания */
+            align-items: center;
+            text-align: center;
+        }
+
+            .vshct-form .form-control:focus::placeholder {
+                color: white; /* Делаем placeholder видимым при фокусе */
+                display: flex; /* Используем flexbox для вертикального выравнивания */
+                align-items: center;
+                text-align: center;
+            }
+
+    /* Скрываем Label при фокусе */
+    .vshct-form label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        border-radius: 2rem;
+        align-items: center;
+        background-color: #5A85A6; /* Цвет фона плашки, чтобы перекрыть background input */
+        color: white; /* Цвет текста */
+        font-size: 1.5em;
+        pointer-events: none; /* Предотвращаем перехват кликов label */
+        transition: all 0.2s ease;
+        z-index: 1; /* Размещаем label поверх input */
+    }
+
+    /* Стили для label, когда input в фокусе или имеет значение */
+    .vshct-form .form-control:focus + label,
+    .vshct-form .form-control:not(:placeholder-shown) + label {
+        opacity: 0; /* Скрываем label */
+    }
+
+    /* Стили для placeholder */
+    .vshct-form .form-control::placeholder {
+        color: transparent; /* Изначально скрываем placeholder */
+        transition: color 0.2s ease; /* Добавим плавный переход для цвета */
+    }
+
+.login-button {
+    width: 500px;
+    display: inline-block;
+    background-color: #5A85A6;
+    color: white;
+    padding: 15px 30px;
+    text-decoration: none;
+    border: none;
+    border-radius: 2rem;
+    cursor: pointer;
+    font-size: 2em;
+    transition: background-color 0.3s ease;
+}
+
+    .login-button:hover {
+        background-color: #1B4780; /* Более темный оттенок при наведении */
+        color: white;
+        text-decoration: none;
+    }
+
+.register-button {
+    width: 500px;
+    display: inline-block;
+    background-color: #5A85A6;
+    color: white;
+    padding: 15px 30px;
+    text-decoration: none;
+    border: none;
+    border-radius: 2rem;
+    cursor: pointer;
+    font-size: 2em;
+    transition: background-color 0.3s ease;
+    margin-top: 50px;
+}
+
+    .register-button:hover {
+        background-color: #1B4780; /* Более темный оттенок при наведении */
+        color: white;
+        text-decoration: none;
+    }
+
+    
+.form-label {
+    color: #150B34;
+    font-size: 1.5em;
+}
+.login-register {
+    margin-top: 20px;
+    color: #150B34;
+    text-decoration: none;
+    display: inline-block;
+}
+
+body-login {
+    font-family: 'JetBrains Mono', Helvetica, Arial, sans-serif;
+    background-color: #D6E7FA; /* Светло-голубой цвет */
+    height: 100%; /* Занимать всю высоту экрана */
+    margin: 0; /* Убрать отступы по умолчанию */
+    display: flex; /* Включаем Flexbox */
+    justify-content: center; /* Центрируем по горизонтали */
+    align-items: center; /* Центрируем по вертикали */
+    flex-direction: column;
+}

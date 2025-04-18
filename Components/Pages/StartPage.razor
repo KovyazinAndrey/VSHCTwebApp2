@@ -1,0 +1,20 @@
+﻿@using VSHCTwebApp.Components.Layout
+@page "/"
+@inject NavigationManager NavigationManager
+@layout EmptyLayout
+
+<PageTitle>Start Page</PageTitle>
+
+<div class="app-container">
+    <div class="title-container">
+        <h1>Биржа проектов</h1>
+        <h1>Высшей школы</h1>
+        <h1>цифровых технологий</h1>
+    </div>
+
+    <div class="buttons-container">
+        <NavLink class="auth-button" href="Account/Login">Войти</NavLink>
+        <NavLink class="auth-button" href="Account/Register">Зарегистрироваться</NavLink>
+    </div>
+</div>
+
