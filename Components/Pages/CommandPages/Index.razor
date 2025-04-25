@@ -14,7 +14,7 @@
     <a href="commands/create">Создать новую команду</a>
 </p>
 
-<QuickGrid Class="table" Items="context.Command">
+<QuickGrid Class="table" Items="context.Commands">
     <TemplateColumn Title="Название" Context="command">
         <a href="@($"commands/details?id={command.Id}")" class="text-decoration-none">@command.Name</a>
     </TemplateColumn>  

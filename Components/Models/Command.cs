@@ -1,20 +1,20 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VSHCTwebApp.Components.Models
 {
     public class Command
     {
+        [Key]
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Введите название команды")]
-        [StringLength(50, ErrorMessage = "Название команды не должно превышать 50 символов")]
-        public string Name { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Название команды обязательно")]
+        [StringLength(100, MinimumLength = 3, ErrorMessage = "Название должно быть от 3 до 100 символов")]
+        public string Name { get; set; }
 
-        [Required(ErrorMessage = "Введите описание команды")]
-        [StringLength(200, ErrorMessage = "Описание не должно превышать 200 символов")]
-        public string Description { get; set; } = string.Empty;
+        [StringLength(500, ErrorMessage = "Описание не должно превышать 500 символов")]
+        public string Description { get; set; }
 
-        [Required(ErrorMessage = "Введите описание команды")]
-        public string Members { get; set; } = string.Empty;
+        public ICollection<TeamMember> Members { get; set; } = new List<TeamMember>();
     }
-} 
+}

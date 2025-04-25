@@ -43,7 +43,7 @@
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        command = await context.Command.FirstOrDefaultAsync(m => m.Id == Id);
+        command = await context.Commands.FirstOrDefaultAsync(m => m.Id == Id);
 
         if (command is null)
         {
@@ -54,7 +54,7 @@
     private async Task DeleteCommand()
     {
         using var context = DbFactory.CreateDbContext();
-        context.Command.Remove(command!);
+        context.Commands.Remove(command!);
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/commands");
     }

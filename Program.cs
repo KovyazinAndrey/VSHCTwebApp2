@@ -7,6 +7,7 @@ using VSHCTwebApp.Components.Account;
 using VSHCTwebApp.Components.Services;
 using VSHCTwebApp.Data;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace VSHCTwebApp
 {
@@ -30,6 +31,8 @@ namespace VSHCTwebApp
             builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
             builder.Services.AddScoped<LikeService> ();
+
+           
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 

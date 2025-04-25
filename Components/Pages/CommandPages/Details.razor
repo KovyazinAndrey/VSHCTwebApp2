@@ -1,49 +1,174 @@
 ﻿@page "/commands/details"
 @using Microsoft.EntityFrameworkCore
 @using VSHCTwebApp.Components.Models
-@inject IDbContextFactory<VSHCTwebApp.Data.VSHCTwebAppContext> DbFactory
+@using VSHCTwebApp.Data
+@inject IDbContextFactory<VSHCTwebAppContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
-<PageTitle>Подробнее</PageTitle>
+<PageTitle>Детали команды</PageTitle>
 
-<h1>Подробнее</h1>
-
-<div>
-    <hr />
-    @if (command is null)
-    {
-        <p><em>Loading...</em></p>
-    }
-    else {
-        <dl class="row">
-            <dt class="col-sm-2">Название</dt>
-            <dd class="col-sm-10">@command.Name</dd>
-            <dt class="col-sm-2">Описание</dt>
-            <dd class="col-sm-10">@command.Description</dd>
-            <dt class="col-sm-2">Члены команды</dt>
-            <dd class="col-sm-10">@command.Members</dd>
-        </dl>
-        <div>
-            <a href="@($"/commands/edit?id={command.Id}")">Изменить</a> |
-            <a href="@($"/commands")">Вернуться</a>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2>Детали команды</h2>
         </div>
-    }
+
+        <div class="card-body">
+            @if (command is null)
+            {
+                <p class="text-center"><em>Загрузка данных...</em></p>
+            }
+            else
+            {
+                <dl class="row">
+                    <dt class="col-sm-3">Название команды:</dt>
+                    <dd class="col-sm-9">@command.Name</dd>
+
+                    <dt class="col-sm-3">Описание:</dt>
+                    <dd class="col-sm-9">@command.Description</dd>
+
+                    <dt class="col-sm-3">Члены команды:</dt>
+                    <dd class="col-sm-9">
+                        @if (command.Members?.Any() == true)
+                        {
+                            <ul class="list-group">
+                                @foreach (var member in command.Members)
+                                {
+                                    <li class="list-group-item">
+                                        @member.UserEmail
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Участники не добавлены</span>
+                        }
+                    </dd>
+                </dl>
+
+                <div class="mt-4 d-flex justify-content-between">
+                    <div>
+                        <a href="@($"/commands/edit?id={command.Id}")" class="btn btn-primary">
+                            <i class="bi bi-pencil"></i> Редактировать
+                        </a>
+                        <button @onclick="ShowDeleteConfirmation" class="btn btn-danger ms-2">
+                            <i class="bi bi-trash"></i> Удалить команду
+                        </button>
+                    </div>
+                    <a href="/commands" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад к списку
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
-@code {
-    private Command? command;
+@if (showDeleteDialog)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" @onclick="CancelDelete"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы уверены, что хотите удалить команду "@command?.Name"?</p>
+                    <p class="text-danger">Это действие нельзя отменить!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">
+                        <i class="bi bi-x-circle"></i> Отмена
+                    </button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
 
+@code {
+    @rendermode InteractiveServer
+    private Command? command;
+    private bool showDeleteDialog = false;
+    private bool isDeleting = false;
+
+    [Parameter]
     [SupplyParameterFromQuery]
-    private int Id { get; set; }
+    public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadCommandData();
+    }
+
+    private async Task LoadCommandData()
+    {
         using var context = DbFactory.CreateDbContext();
-        command = await context.Command.FirstOrDefaultAsync(m => m.Id == Id);
+        command = await context.Commands
+            .Include(c => c.Members)
+            .FirstOrDefaultAsync(m => m.Id == Id);
 
         if (command is null)
         {
             NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private void ShowDeleteConfirmation()
+    {
+        showDeleteDialog = true;
+        StateHasChanged();
+    }
+
+    private void CancelDelete()
+    {
+        showDeleteDialog = false;
+        StateHasChanged();
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (isDeleting) return;
+
+        isDeleting = true;
+        StateHasChanged();
+
+        try
+        {
+            using var context = DbFactory.CreateDbContext();
+
+            // Удаляем всех участников команды
+            var members = await context.TeamMembers
+                .Where(tm => tm.CommandId == Id)
+                .ToListAsync();
+
+            context.TeamMembers.RemoveRange(members);
+
+            // Удаляем саму команду
+            var commandToDelete = await context.Commands.FindAsync(Id);
+            if (commandToDelete != null)
+            {
+                context.Commands.Remove(commandToDelete);
+            }
+
+            await context.SaveChangesAsync();
+
+            // Перенаправляем на список команд
+            NavigationManager.NavigateTo("/commands", forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Ошибка при удалении: {ex.Message}");
+            isDeleting = false;
+            showDeleteDialog = false;
+            StateHasChanged();
         }
     }
 }
