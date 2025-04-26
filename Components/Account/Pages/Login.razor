@@ -26,17 +26,17 @@
                 <ValidationSummary class="text-danger" role="alert" />
                 <div class="form-floating vshct-form">
                     <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label for="email">Введите адрес электронной почты</label>
+                    <label for="email" class="vshct-form label">Введите адрес электронной почты</label>
                     <ValidationMessage For="() => Input.Email" class="text-danger" />
                 </div>
                 <h2>Пароль</h2>
                 <div class="form-floating vshct-form">
                     <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label for="password" class="form-label">Введите пароль</label>
+                    <label for="password" class="vshct-form label">Введите пароль</label>
                     <ValidationMessage For="() => Input.Password" class="text-danger" />
                 </div>
                 <div class="checkbox mb-3">
-                    <label class="form-label">
+                    <label class="vshct-form label">
                         <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
                         Запомнить меня
                     </label>

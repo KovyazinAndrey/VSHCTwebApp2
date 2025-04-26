@@ -1,4 +1,13 @@
 ﻿@implements IDisposable
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using VSHCTwebApp.Data
+@using VSHCTwebApp.Components.Layout
+
+@inject SignInManager<ApplicationUser> SignInManager
+
 
 @inject NavigationManager NavigationManager
 
@@ -66,6 +75,7 @@
 
 @code {
     private string? currentUrl;
+   
 
     protected override void OnInitialized()
     {

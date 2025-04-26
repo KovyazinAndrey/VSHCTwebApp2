@@ -29,7 +29,7 @@
 <QuickGrid Class="table" Items="sortedNotes">
     <TemplateColumn Title="Лайки" Context="note">
         <button @onclick="@(() => ToggleLike(note))"
-                class="btn btn-link @(IsLikedByUser(note) ? "text-danger" : "text-secondary")">
+                class="btn btn-link @(IsLikedByUser(note) ? "text-danger" : "text-decoration-none")">
             @(note.Likes?.Count ?? 0)
         </button>
     </TemplateColumn>
