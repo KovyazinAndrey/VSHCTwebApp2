@@ -12,7 +12,7 @@ using VSHCTwebApp.Data;
 namespace VSHCTwebApp.Migrations.VSHCTwebApp
 {
     [DbContext(typeof(VSHCTwebAppContext))]
-    [Migration("20250425055934_Initial")]
+    [Migration("20250426082506_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -35,21 +35,17 @@ namespace VSHCTwebApp.Migrations.VSHCTwebApp
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Members")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Command");
+                    b.ToTable("Commands");
                 });
 
             modelBuilder.Entity("VSHCTwebApp.Components.Models.Like", b =>
@@ -134,6 +130,32 @@ namespace VSHCTwebApp.Migrations.VSHCTwebApp
                     b.ToTable("Project");
                 });
 
+            modelBuilder.Entity("VSHCTwebApp.Components.Models.TeamMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CommandId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommandId");
+
+                    b.ToTable("TeamMembers");
+                });
+
             modelBuilder.Entity("VSHCTwebApp.Components.Models.Like", b =>
                 {
                     b.HasOne("VSHCTwebApp.Components.Models.Note", "Note")
@@ -143,6 +165,22 @@ namespace VSHCTwebApp.Migrations.VSHCTwebApp
                         .IsRequired();
 
                     b.Navigation("Note");
+                });
+
+            modelBuilder.Entity("VSHCTwebApp.Components.Models.TeamMember", b =>
+                {
+                    b.HasOne("VSHCTwebApp.Components.Models.Command", "Command")
+                        .WithMany("Members")
+                        .HasForeignKey("CommandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Command");
+                });
+
+            modelBuilder.Entity("VSHCTwebApp.Components.Models.Command", b =>
+                {
+                    b.Navigation("Members");
                 });
 
             modelBuilder.Entity("VSHCTwebApp.Components.Models.Note", b =>

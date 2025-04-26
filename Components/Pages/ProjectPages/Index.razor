@@ -6,20 +6,21 @@
 @implements IAsyncDisposable
 @inject IDbContextFactory<VSHCTwebApp.Data.VSHCTwebAppContext> DbFactory
 
-<PageTitle>Index</PageTitle>
 
-<h1>Биржа проектов</h1>
 
-<p>
+<h1>Биржа проектов
     <AuthorizeView Policy="ClientOrAdmin">
         <Authorized Context="authContext">
-            <a href="projects/create">Create New</a>
+            <a href="projects/create" class="btn-idea btn-primary" style="float: right;">Добавить проект</a>
         </Authorized>
         <NotAuthorized Context="authContext">
 
         </NotAuthorized>
     </AuthorizeView>
-</p>
+    
+</h1>
+
+
 
 <QuickGrid Class="table" Items="context.Project">
     <TemplateColumn Title="Название" Context="project">

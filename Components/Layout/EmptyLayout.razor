@@ -2,7 +2,7 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
 
-
+<PageTitle>Портал ВШЦТ</PageTitle>
 <div class="page">
     <main>
         <article class="content px-4">
@@ -25,7 +25,7 @@
         if (authState.User.Identity?.IsAuthenticated == true
             && Navigation.Uri.EndsWith("/")) // Если пользователь уже на странице входа
         {
-            Navigation.NavigateTo("/home"); // Перенаправляем на главную
+            Navigation.NavigateTo("/notes"); // Перенаправляем на главную
         }
     }
     

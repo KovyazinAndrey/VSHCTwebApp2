@@ -1,0 +1,24 @@
+﻿@page "/Account/Logout"
+
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using VSHCTwebApp.Data
+@using VSHCTwebApp.Components.Layout
+
+@inject NavigationManager Navigation
+@inject IdentityRedirectManager RedirectManager
+@layout EmptyLayout
+
+
+<h1>Выход</h1>
+
+
+
+@code {
+    protected override void OnInitialized()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

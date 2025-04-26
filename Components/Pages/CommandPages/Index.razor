@@ -6,13 +6,14 @@
 @implements IAsyncDisposable
 @inject IDbContextFactory<VSHCTwebApp.Data.VSHCTwebAppContext> DbFactory
 
-<PageTitle>Реестр команд</PageTitle>
 
-<h1>Реестр команд</h1>
 
-<p>
-    <a href="commands/create">Создать новую команду</a>
-</p>
+<h1>
+    Реестр команд
+    <a href="commands/create" class="btn-idea btn-primary" style="float: right;">Создать новую команду</a>
+</h1>
+
+
 
 <QuickGrid Class="table" Items="context.Commands">
     <TemplateColumn Title="Название" Context="command">

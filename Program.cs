@@ -8,6 +8,7 @@ using VSHCTwebApp.Components.Services;
 using VSHCTwebApp.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace VSHCTwebApp
 {
@@ -31,8 +32,24 @@ namespace VSHCTwebApp
             builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
             builder.Services.AddScoped<LikeService> ();
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+                options.LogoutPath = "/";
+                options.AccessDeniedPath = "/Account/AccessDenied";
+                options.ExpireTimeSpan = TimeSpan.FromDays(30);
+                options.SlidingExpiration = true;
+            });
 
-           
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LogoutPath = "/";  // Кастомный путь
+                options.LoginPath = "/Account/Login";    // Чтобы не было /Identity/Account/Login
+            });
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -104,7 +121,7 @@ namespace VSHCTwebApp
             }
 
             app.UseHttpsRedirection();
-
+            app.UseAuthorization();
             app.UseStaticFiles();
             app.UseAntiforgery();
 
