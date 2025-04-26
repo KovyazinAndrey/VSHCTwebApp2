@@ -1,0 +1,47 @@
+﻿@page "/Account/Manage/Portfolio"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using System.Security.Claims
+@using VSHCTwebApp.Components.Models
+@using VSHCTwebApp.Data
+@inject IDbContextFactory<VSHCTwebApp.Data.VSHCTwebAppContext> DbFactory
+@inject AuthenticationStateProvider AuthProvider
+
+
+<h3>Ваше портфолио</h3>
+
+@if (notes == null)
+{
+    <p>Загрузка...</p>
+}
+else
+{
+    <QuickGrid Class="table" Items="@notes.AsQueryable()" Pagination="@pagination" TGridItem="Note">
+
+        <TemplateColumn Title="Название" Context="note">
+            <a href="@($"notes/details?id={note.Id}")" class="text-decoration-none">@note.Title</a>
+        </TemplateColumn>
+
+        <TemplateColumn Title="Дата создания" Context="note">
+            @note.CreatedAt.ToString("g")
+        </TemplateColumn>
+
+    </QuickGrid>
+}
+
+@code {
+    private List<Note>? notes;
+    private PaginationState pagination = new() { ItemsPerPage = 10 };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var userName = authState.User.FindFirstValue(ClaimTypes.Name);
+
+        using var context = DbFactory.CreateDbContext();
+        notes = await context.Note
+            .Where(i => i.CreatedBy == userName)
+            .OrderByDescending(i => i.CreatedAt)
+            .ToListAsync();
+    }
+}

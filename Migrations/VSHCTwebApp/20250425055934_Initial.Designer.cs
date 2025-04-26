@@ -12,7 +12,7 @@ using VSHCTwebApp.Data;
 namespace VSHCTwebApp.Migrations.VSHCTwebApp
 {
     [DbContext(typeof(VSHCTwebAppContext))]
-    [Migration("20250413081353_Initial")]
+    [Migration("20250425055934_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
