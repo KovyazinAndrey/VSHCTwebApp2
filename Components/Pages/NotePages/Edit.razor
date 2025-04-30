@@ -27,18 +27,33 @@ else
                 <input type="hidden" name="Note.Id" value="@Note.Id" />
                 <div class="mb-3">
                     <label for="title" class="form-label">Название:</label>
-                    <InputText id="title" @bind-Value="Note.Title" class="form-control" aria-required="true"/>
+                    <InputText id="title" @bind-Value="Note.Title" class="form-control" aria-required="true" />
                     <ValidationMessage For="() => Note.Title" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="description" class="form-label">Описание:</label>
-                    <InputTextArea id="description" @bind-Value="Note.Description" class="form-control" aria-required="true"/>
-                    <ValidationMessage For="() => Note.Description" class="text-danger" />
+                    <label for="description" class="form-label">Проблема:</label>
+                    <InputTextArea id="description" @bind-Value="Note.Problem" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => Note.Problem" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="createdat" class="form-label">Когда создано:</label>
-                    <InputDate id="createdat" @bind-Value="Note.CreatedAt" class="form-control" />
-                    <ValidationMessage For="() => Note.CreatedAt" class="text-danger" />
+                    <label for="description" class="form-label">Предлагаемое решение:</label>
+                    <InputTextArea id="description" @bind-Value="Note.Solution" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => Note.Solution" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Ожидаемый результат:</label>
+                    <InputTextArea id="description" @bind-Value="Note.Result" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => Note.Result" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Описание необходимых ресурсов для реализации:</label>
+                    <InputTextArea id="description" @bind-Value="Note.DescrNeededResurses" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => Note.DescrNeededResurses" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Стек технологий:</label>
+                    <InputTextArea id="description" @bind-Value="Note.StackTech" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => Note.StackTech" class="text-danger" />
                 </div>
                 <button type="submit" class="btn btn-primary">Сохранить</button>
             </EditForm>

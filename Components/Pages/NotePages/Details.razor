@@ -18,16 +18,49 @@
         <p><em>Loading...</em></p>
     }
     else {
-        <dl class="details-row">
-            <dt class="col-sm-2">Название</dt>
-            <dd class="col-sm-10">@note.Title</dd>
-            <dt class="col-sm-2">Описание</dt>
-            <dd class="col-sm-10">@note.Description</dd>
-            <dt class="col-sm-2">Кем создано</dt>
-            <dd class="col-sm-10">@note.CreatedBy</dd>
-            <dt class="col-sm-2">Когда создано</dt>
-            <dd class="col-sm-10">@note.CreatedAt</dd>
-        </dl>
+        <div class="card shadow-sm p-4 mb-4">
+            <!-- Общая карточка с тенью и отступами -->
+            <dl class="row">
+
+                <!-- Каждый блок в отдельной строке с отступом -->
+
+                <div class="col-12 mb-3">
+                    <dt class="text-primary fw-bold small">Название</dt>
+                    <dd class="ms-2 mt-1 fs-5">@note.Title</dd>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <dt class="text-primary fw-bold small">Проблема</dt>
+                    <dd class="ms-2 mt-1 fs-5">@note.Problem</dd>
+                </div>
+                <div class="col-12 mb-3">
+                    <dt class="text-primary fw-bold small">Предлагаемое решение</dt>
+                    <dd class="ms-2 mt-1 fs-5">@note.Solution</dd>
+                </div>
+                <div class="col-12 mb-3">
+                    <dt class="text-primary fw-bold small">Ожидаемый результат</dt>
+                    <dd class="ms-2 mt-1 fs-5">@note.Result</dd>
+                </div>
+                <div class="col-12 mb-3">
+                    <dt class="text-primary fw-bold small">Описание необходимых ресурсов для реализации</dt>
+                    <dd class="ms-2 mt-1 fs-5">@note.DescrNeededResurses</dd>
+                </div>
+                <div class="col-12 mb-3">
+                    <dt class="text-primary fw-bold small">Стек технологий</dt>
+                    <dd class="ms-2 mt-1 fs-5">@note.StackTech</dd>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <dt class="text-primary fw-bold small">Кем создано</dt>
+                    <dd class="ms-2 mt-1 fs-5">@note.CreatedBy</dd>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <dt class="text-primary fw-bold small">Когда создано</dt>
+                    <dd class="ms-2 mt-1 fs-5">@note.CreatedAt</dd>
+                </div>
+            </dl>
+        </div>
         <div class="details-button-container">
             @{
                 var currentUser = HttpContextAccessor.HttpContext.User;
@@ -98,7 +131,11 @@
             var approvedProject = new Project
                 {
                     Title = noteToApprove.Title,
-                    Description = noteToApprove.Description,
+                    Problem = noteToApprove.Problem,
+                    Solution = noteToApprove.Solution,
+                    Result = noteToApprove.Result,
+                    DescrNeededResurses = noteToApprove.DescrNeededResurses,
+                    StackTech = noteToApprove.StackTech,
                     CreatedBy = noteToApprove.CreatedBy,
                     ConfermedBy = noteToApprove.CreatedBy
                 };

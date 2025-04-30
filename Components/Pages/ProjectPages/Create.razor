@@ -16,25 +16,35 @@
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert"/>
             <div class="mb-3">
-                <label for="title" class="form-label">Title:</label> 
-                <InputText id="title" @bind-Value="Project.Title" class="form-control" /> 
-                <ValidationMessage For="() => Project.Title" class="text-danger" /> 
-            </div>        
+                <label for="title" class="form-label">Название:</label>
+                <InputText id="title" @bind-Value="Project.Title" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => Project.Title" class="text-danger" />
+            </div>
             <div class="mb-3">
-                <label for="description" class="form-label">Description:</label> 
-                <InputText id="description" @bind-Value="Project.Description" class="form-control" /> 
-                <ValidationMessage For="() => Project.Description" class="text-danger" /> 
-            </div>        
+                <label for="description" class="form-label">Проблема:</label>
+                <InputTextArea id="description" @bind-Value="Project.Problem" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => Project.Problem" class="text-danger" />
+            </div>
             <div class="mb-3">
-                <label for="createdby" class="form-label">CreatedBy:</label> 
-                <InputText id="createdby" @bind-Value="Project.CreatedBy" class="form-control" /> 
-                <ValidationMessage For="() => Project.CreatedBy" class="text-danger" /> 
-            </div>        
+                <label for="description" class="form-label">Предлагаемое решение:</label>
+                <InputTextArea id="description" @bind-Value="Project.Solution" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => Project.Solution" class="text-danger" />
+            </div>
             <div class="mb-3">
-                <label for="confermedby" class="form-label">ConfermedBy:</label> 
-                <InputText id="confermedby" @bind-Value="Project.ConfermedBy" class="form-control" /> 
-                <ValidationMessage For="() => Project.ConfermedBy" class="text-danger" /> 
-            </div>        
+                <label for="description" class="form-label">Ожидаемый результат:</label>
+                <InputTextArea id="description" @bind-Value="Project.Result" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => Project.Result" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Описание необходимых ресурсов для реализации:</label>
+                <InputTextArea id="description" @bind-Value="Project.DescrNeededResurses" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => Project.DescrNeededResurses" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Стек технологий:</label>
+                <InputTextArea id="description" @bind-Value="Project.StackTech" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => Project.StackTech" class="text-danger" />
+            </div>
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
     </div>
