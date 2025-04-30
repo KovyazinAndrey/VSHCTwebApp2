@@ -102,7 +102,6 @@ namespace VSHCTwebApp
 
             builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-            builder.Services.AddSingleton<NoteService>();
             builder.Services.AddSingleton<CommandService>();
             
             var app = builder.Build();
