@@ -34,6 +34,26 @@
                 <label for="email" class="vshct-form label">Введите адрес электронной почты</label>
                 <ValidationMessage For="() => Input.Email" class="text-danger" />
             </div>
+            <h2>Фамилия</h2>
+            <div class="form-floating vshct-form">
+                <InputText @bind-Value="Input.LastName" class="form-control" placeholder="Иванов" />
+                <label>Фамилия</label>
+                <ValidationMessage For="() => Input.LastName" class="text-danger" />
+            </div>
+
+            <h2>Имя</h2>
+            <div class="form-floating vshct-form">
+                <InputText @bind-Value="Input.FirstName" class="form-control" placeholder="Иван" />
+                <label>Имя</label>
+                <ValidationMessage For="() => Input.FirstName" class="text-danger" />
+            </div>
+
+            <h2>Группа</h2>
+            <div class="form-floating vshct-form">
+                <InputText @bind-Value="Input.Group" class="form-control" placeholder="ГРУППА-123" />
+                <label>Группа</label>
+                <ValidationMessage For="() => Input.Group" class="text-danger" />
+            </div>
             <h2>Пароль</h2>
             <div class="form-floating vshct-form">
                 <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
@@ -110,7 +130,14 @@
     {
         try
         {
-            return Activator.CreateInstance<ApplicationUser>();
+            var user = Activator.CreateInstance<ApplicationUser>();
+
+            // Устанавливаем новые поля из формы регистрации
+            user.LastName = Input.LastName;
+            user.FirstName = Input.FirstName;
+            user.Group = Input.Group;
+
+            return user;
         }
         catch
         {
@@ -145,5 +172,17 @@
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = "";
+
+        [Required]
+        [Display(Name = "Фамилия")]
+        public string LastName { get; set; } = "";
+
+        [Required]
+        [Display(Name = "Имя")]
+        public string FirstName { get; set; } = "";
+
+        [Required]
+        [Display(Name = "Группа")]
+        public string Group { get; set; } = "";
     }
 }

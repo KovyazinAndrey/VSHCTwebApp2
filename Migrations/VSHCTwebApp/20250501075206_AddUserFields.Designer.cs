@@ -12,8 +12,8 @@ using VSHCTwebApp.Data;
 namespace VSHCTwebApp.Migrations.VSHCTwebApp
 {
     [DbContext(typeof(VSHCTwebAppContext))]
-    [Migration("20250430110546_Initial")]
-    partial class Initial
+    [Migration("20250501075206_AddUserFields")]
+    partial class AddUserFields
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

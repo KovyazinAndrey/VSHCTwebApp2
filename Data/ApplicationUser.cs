@@ -8,6 +8,9 @@ namespace VSHCTwebApp.Data
     public class ApplicationUser : IdentityUser
     {
         public List<UserCompetence> UserCompetences { get; set; } = new();
+        public string LastName { get; set; }
+        public string FirstName { get; set; }
+        public string Group { get; set; }
     }
 
 }
