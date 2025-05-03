@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VSHCTwebApp.Data;
 
 #nullable disable
 
-namespace VSHCTwebApp.Migrations.VSHCTwebApp
+namespace VSHCTwebApp.Migrations
 {
     [DbContext(typeof(VSHCTwebAppContext))]
-    [Migration("20250501075206_AddUserFields")]
-    partial class AddUserFields
+    partial class VSHCTwebAppContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

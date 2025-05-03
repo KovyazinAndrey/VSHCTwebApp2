@@ -95,6 +95,7 @@ else
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = await UserManager.GetUserAsync(authState.User);
             Note.CreatedBy = user.UserName;
+            Note.CreatedAt = DateTime.Now;
             await context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)

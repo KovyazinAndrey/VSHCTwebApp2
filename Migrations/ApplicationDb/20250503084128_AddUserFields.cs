@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace VSHCTwebApp.Migrations
+namespace VSHCTwebApp.Migrations.ApplicationDb
 {
     /// <inheritdoc />
     public partial class AddUserFields : Migration

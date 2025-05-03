@@ -73,14 +73,7 @@
             }
 
             <EditForm method="post" Model="note" OnValidSubmit="DeleteNote" FormName="delete" Enhance>
-                <AuthorizeView Policy="AdminOnly">
-                    <Authorized Context="authContext">
-                        <button type="submit" class="btn btn-danger" disabled="@(note is null)">Удалить</button>
-                    </Authorized>
-                    <NotAuthorized Context="authContext">
-
-                    </NotAuthorized>
-                </AuthorizeView>
+                <button type="submit" class="btn btn-danger" disabled="@(note is null)">Удалить</button>
             </EditForm>
             <EditForm method="post" Model="note" OnValidSubmit="ApproveNote" FormName="approve" Enhance>
                 <AuthorizeView Policy="AdminOnly">

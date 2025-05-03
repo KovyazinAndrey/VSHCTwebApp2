@@ -8,7 +8,7 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDbContextFactory<ApplicationDbContext> DbContextFactory
 
-<EditForm Model="@editModel" OnValidSubmit="SaveCompetences">
+<EditForm Model="@editModel" OnValidSubmit="SaveCompetences" FormName="EditCompetencies">
     <div class="form-group">
         <label>Языки программирования</label>
         <InputSelect @bind-Value="editModel.SelectedLanguages" multiple class="form-control">
